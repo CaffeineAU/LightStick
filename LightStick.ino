@@ -101,6 +101,7 @@ uint32_t FreeRam() { // for Teensy 3.0
 	// The difference is the free, available ram.
 	return stackTop - heapTop;
 
+	ts.pressureThreshhold = 250;
 }
 
 char filename[255];
@@ -135,12 +136,12 @@ void loop() {
 	if (!touching && wastouching) // 'mouse' up
 	{
 		touchup = p; // valid touch up event
-		Serial.print("Touch up at "); Serial.print(touchup.x); Serial.print(":"); Serial.println(touchup.y);
+		Serial.print("Touch up at "); Serial.print(touchup.x); Serial.print(":"); Serial.print(touchup.y); Serial.print(":"); Serial.println(p.z);
 	}
 	if (touching)
 	{
 		touchup = TSPoint(-1, -1, -1); // clear last touch
-		Serial.println("Touching...");
+		Serial.print("Touching... "); Serial.println(p.z);
 	}
 	// we have some minimum pressure we consider 'valid'
 	// pressure of 0 means no pressing!
@@ -159,7 +160,7 @@ void loop() {
 			bmpDrawScale("Menu/ImageMenu.bmp", 0, 0, 1, 320);
 			sd.vwd()->rewind();
 			DrawCurrentImage();
-			delay(250);
+			delay(500);
 
 		}
 		break;
@@ -170,13 +171,13 @@ void loop() {
 			Serial.println("Going to Delay Menu");
 			MenuState = STATE_DELAY;
 			bmpDrawScale("Menu/DelayMenu.bmp", 0, 0, 1, 320);
-			delay(250);
+			delay(500);
 		}
 		else if (touchup.x > 127 && touchup.x < 177 && touchup.y > 45 && touchup.y < 95) // show image
 		{
 			touchup = TSPoint(-1, -1, -1); // clear last touch
 			DrawCurrentImage();
-			delay(250);
+			delay(100);
 		}
 
 		break;
@@ -188,7 +189,7 @@ void loop() {
 		}
 		break;
 	case STATE_DISPLAY:
-			touchup = TSPoint(-1, -1, -1); // clear last touch
+		touchup = TSPoint(-1, -1, -1); // clear last touch
 		tft.fillScreen(ILI9341_BLACK);
 		tft.setTextColor(ILI9341_YELLOW);
 		tft.setFont(Arial_72_Bold);
@@ -288,7 +289,7 @@ void loop() {
 }
 void DrawCurrentImage()
 {
-	tft.fillRect(76, 132, 152, 168, ILI9341_WHITE);
+	//tft.fillRect(76, 132, 152, 168, ILI9341_WHITE);
 	bool done = false;
 	while (!done) {
 		if (!file.openNext(sd.vwd(), O_READ))
@@ -582,10 +583,10 @@ bool bmpDrawLEDs(const char *filename) {
 			Serial.print(F("Loaded in ")); Serial.print(millis() - startTime); Serial.println(" ms");
 			for (int black = 0; black < bmpWidth; black++)
 			{
-				leds[black].setRGB(0,0,0);
-			}		
-					LEDS.show();
-					LEDS.delay(10);
+				leds[black].setRGB(0, 0, 0);
+			}
+			LEDS.show();
+			LEDS.delay(10);
 			//Serial.print(F("Free Stack :"));
 			//Serial.println(FreeRam());
 		} // end goodBmp
